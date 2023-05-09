@@ -15,7 +15,7 @@ Download kernel source code `from wget instead of git` to your home folder ,and 
 
 Run git to get kernel vendor source code
 ```bash
-git clone https://github.com/oppo-source/android_kernel_modules_oppo_mtk_4.19
+git clone https://github.com/dabao1955/android_kernel_OPPO_PEQM00 -b oplus_vendor vendor --depth=1
 ```
 Copy vendor folder to your home folder and copy vendor/oplus/kernel_4.19/audio to kernel-4.19/sound/soc/codecs
 
