@@ -19,5 +19,7 @@ git clone https://github.com/dabao1955/android_kernel_OPPO_PEQM00 -b oplus_vendo
 ```
 Copy vendor folder to your home folder and copy vendor/oplus/kernel_4.19/audio to kernel-4.19/sound/soc/codecs
 
+Run setup.sh to sync kernelsu 
+
 Finally,run `build_kernel.sh` before you into the kernel-4.19 folder.
 
