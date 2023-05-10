@@ -1,6 +1,8 @@
 #!/bin/sh
 set +eux
 
+rm -rf KernelSU drivers/kernelsu
+
 GKI_ROOT=$(pwd)
 
 echo "[+] GKI_ROOT: $GKI_ROOT"
