@@ -7,6 +7,10 @@ KernelSU kernel source code for OPPO Reno6/Reno6 Pro on ColorOS13.x
 
 - [ ] OPPO Reno5 Pro (mt6885) ~~(no config file)~~
 
+- [ ] OPPO Reno7 Pro (mt6893) ~~(no config file and no offical way to unlock bootloader)~~
+
+- [ ] OPPO Reno8 (mt6893) ~~(no way to unlock bootloader)~~
+
 - [ ] OPPO Qualcomm Device ~~(This is the kernel source code of the MediaTek device, not the kernel source code of the Qualcomm device. In the future, there may be an entire kernel source code for sm8280 or sm7250 that supports kernelSU.)~~
 ### Quick Start
 Required dependencies for installation for Debian/Ubuntu
