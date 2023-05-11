@@ -7,7 +7,7 @@ KernelSU kernel source code for OPPO Reno6/Reno6 Pro on ColorOS13.x
 
 - [ ] OPPO Reno5 Pro (mt6885) ~~(no config file)~~
 
-- [ ] OPPO Qcom Device ~~(this is mediatek kernel source instead of qcom kernel source)~~
+- [ ] OPPO Qualcomm Device ~~(This is the kernel source code of the MediaTek device, not the kernel source code of the Qualcomm device. In the future, there may be an entire kernel source code for sm8280 or sm7250 that supports kernelSU.)~~
 ### Quick Start
 Required dependencies for installation for Debian/Ubuntu
 ```bash
