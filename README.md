@@ -1,6 +1,6 @@
 # android_kernel_OPPO_PEQM00
 KernelSU kernel source code for OPPO Reno6/Reno6 Pro on ColorOS13.x
-# Support Devices
+# Supported Devices
 - OPPO Reno6 (mt6877)
 - OPPO Reno6 Pro (mt6893)
 - ~~OPPO Reno5 Pro (mt6885) (no config file)~~
