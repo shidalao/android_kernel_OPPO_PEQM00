@@ -1,5 +1,5 @@
 # android_kernel_OPPO_PEQM00
-The kernel source code for MediaTek devices in the OPPO Reno series on ColorOS13.x
+Support kernelSU kernel source code for MediaTek devices in the OPPO Reno series on ColorOS13.x
 # Supported Devices
 - [x] OPPO Reno6 (mt6877)
 
