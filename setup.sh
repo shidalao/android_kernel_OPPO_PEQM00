@@ -30,6 +30,7 @@ else
     git checkout "$1"
 fi
 cd "$GKI_ROOT"
+cp KernelSU/kernel -r drivers/kernelsu
 
 echo "[+] GKI_ROOT: $GKI_ROOT"
 echo "[+] Copy kernel su driver to $DRIVER_DIR"
