@@ -35,10 +35,4 @@ cp KernelSU/kernel -r drivers/kernelsu
 echo "[+] GKI_ROOT: $GKI_ROOT"
 echo "[+] Copy kernel su driver to $DRIVER_DIR"
 
-
-echo '[+] Add kernel su driver to Makefile'
-
-DRIVER_MAKEFILE=$DRIVER_DIR/Makefile
-grep -q "kernelsu" "$DRIVER_MAKEFILE" || printf "\nobj-y += kernelsu/\n" >> "$DRIVER_MAKEFILE"
-
 echo '[+] Done.'
