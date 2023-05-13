@@ -5,7 +5,7 @@ Support kernelSU kernel source code for MediaTek devices in the OPPO Reno series
 
 - [x] OPPO Reno6 Pro (mt6893)
 
-- [ ] OPPO Reno5 Pro (mt6885) ~~(no config file)~~
+- [ ] OPPO Reno5 Pro (mt6889) ~~(no config file)~~
 
 - [ ] OPPO Reno7 Pro (mt6893) ~~(no config file and no offical way to unlock bootloader)~~
 
