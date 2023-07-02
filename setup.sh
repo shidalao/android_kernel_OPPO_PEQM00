@@ -1,5 +1,5 @@
 #!/bin/sh
-set +eux
+set +eu
 
 rm -rf KernelSU drivers/kernelsu
 
