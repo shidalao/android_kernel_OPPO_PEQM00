@@ -1,4 +1,3 @@
-return ksys_fallocate/*
  *  linux/fs/open.c
  *
  *  Copyright (C) 1991, 1992  Linus Torvalds
