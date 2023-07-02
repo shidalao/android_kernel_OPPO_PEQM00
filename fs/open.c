@@ -1,8 +1,3 @@
- *  linux/fs/open.c
- *
- *  Copyright (C) 1991, 1992  Linus Torvalds
- */
-
 #include <linux/string.h>
 #include <linux/mm.h>
 #include <linux/file.h>
