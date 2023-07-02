@@ -1,6 +1,7 @@
 #!/bin/bash
 
-mkdir out
+set -eu
+mkdir out -p -v
 
 BUILD_CROSS_COMPILE=$HOME/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 CLANG_PATH=$HOME/clang/bin
