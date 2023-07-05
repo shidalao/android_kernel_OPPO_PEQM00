@@ -14,7 +14,7 @@ export PATH=${CLANG_PATH}:${PATH}
 
 make -j$(nproc) -C $(pwd) O=$(pwd)/out CROSS_COMPILE=$BUILD_CROSS_COMPILE CLANG_TRIPLE=$CLANG_TRIPLE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 \
     CC=clang \
-    vendor/k6893v1_64_k419_defconfig
+    vendor/k6893v1_64_4.19_defconfig
 
 A=$(date +%s)
 make -j$(nproc) -C $(pwd) O=$(pwd)/out CROSS_COMPILE=$BUILD_CROSS_COMPILE CLANG_TRIPLE=$CLANG_TRIPLE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 \
