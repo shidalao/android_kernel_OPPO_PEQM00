@@ -1,7 +1,7 @@
 #!/bin/sh
 set +eu
 
-rm -rf KernelSU drivers/kernelsu
+rm -rf KernelSU
 
 GKI_ROOT=$(pwd)
 
@@ -29,10 +29,5 @@ if [ -z "${1-}" ]; then
 else
     git checkout "$1"
 fi
-cd "$GKI_ROOT"
-cp KernelSU/kernel -r drivers/kernelsu
-
-echo "[+] GKI_ROOT: $GKI_ROOT"
-echo "[+] Copy kernel su driver to $DRIVER_DIR"
 
 echo '[+] Done.'
