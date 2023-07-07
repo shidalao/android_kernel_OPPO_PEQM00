@@ -76,8 +76,8 @@ jobs:
 
         run: |
 
-          cd /home/runner/work/kernelSU_Xiaomi_cmi_kernel_build/kernelSU_Xiaomi_cmi_kernel_build/kernel-4.19
-
+          cd /home/runner/work/android_kernel_OPPO_PEQM00/android_kernel_OPPO_PEQM00/kernel-4.19
+          
           echo "CONFIG_VIRTUALIZATION=y" >> ./arch/arm64/configs/vendor/r6p_nodtb_defconfig
 
           echo "CONFIG_KVM_ARM_HOST=y" >> ./arch/arm64/configs/vendor/r6p_nodtb_defconfig
