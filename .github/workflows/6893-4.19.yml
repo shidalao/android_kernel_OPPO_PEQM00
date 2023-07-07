@@ -67,8 +67,8 @@ jobs:
         run: |
 
           export KBUILD_BUILD_USER="dabao1955"
-
-          cd /home/runner/work/kernelSU_Xiaomi_cmi_kernel_build/kernelSU_Xiaomi_cmi_kernel_build/kernel-4.19
+          
+          cd /home/runner/work/android_kernel_OPPO_PEQM00/android_kernel_OPPO_PEQM00/kernel-4.19
 
           bash setup.sh
 
