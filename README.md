@@ -42,3 +42,6 @@ edit build_kernel.sh to change config.
 
 Finally,run `build_kernel.sh` before you into the kernel-4.19 folder.
 
+# Download Built Kernel
+
+[here](https://github.com/dabao1955/android_kernel_OPPO_PEQM00/actions)
