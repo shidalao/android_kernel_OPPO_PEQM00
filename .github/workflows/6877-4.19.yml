@@ -76,8 +76,8 @@ jobs:
 
         run: |
 
-          cd /home/runner/work/kernelSU_Xiaomi_cmi_kernel_build/kernelSU_Xiaomi_cmi_kernel_build/kernel-4.19
-
+          cd /home/runner/work/android_kernel_OPPO_PEQM00/android_kernel_OPPO_PEQM00/kernel-4.19
+          
           test -f build_kernel.sh && rm build_kernel.sh && wget https://raw.githubusercontent.com/dabao1955/android_kernel_OPPO_PEQM00/README/build_kernel.sh
 
           bash build_kernel.sh
