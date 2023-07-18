@@ -5,9 +5,9 @@ Support kernelSU kernel source code for MediaTek devices in the OPPO Reno series
 
 - [x] OPPO Reno6 Pro (mt6893)
 
-- [?] OPPO Reno5 Pro (mt6889)(~~WIP~~)
+- [-] OPPO Reno5 Pro (mt6889)(~~WIP~~)
 
-- [?] OPPO Reno7 Pro (mt6893)(~~WIP~~) ~~(no offical way to unlock bootloader)~~
+- [~] OPPO Reno7 Pro (mt6893)(~~WIP~~) ~~(no offical way to unlock bootloader)~~
 
 - [ ] OPPO Reno8 (mt6893) ~~(no way to unlock bootloader)~~
 
@@ -45,3 +45,6 @@ Finally,run `build_kernel.sh` before you into the kernel-4.19 folder.
 # Download Built Kernel
 
 [here](https://github.com/dabao1955/android_kernel_OPPO_PEQM00/actions)
+
+
+<input type=“checkbox” checked> 完成第一项任务<br> <input type=“checkbox” checked disabled> 正在进行第二项任务<br> <input type=“checkbox” disabled> 完成了第三项任务的一部分<br> <input type=“checkbox” disabled> 还没有开始第四项任务
