@@ -12,6 +12,12 @@ Support kernelSU kernel source code for MediaTek devices in the OPPO Reno series
 - [ ] OPPO Reno8 (mt6893) ~~(no way to unlock bootloader)~~
 
 - [ ] OPPO Qualcomm Device ~~(This is the kernel source code of the MediaTek device, not the kernel source code of the Qualcomm device. In the future, there may be an entire kernel source code for sm8280 or sm7250 that supports kernelSU.)~~
+# Branches
+- Readme: rt
+- 4.19: default kernel source branch
+- 4.19-ksu-dev: sync KernelSU without Kprobes kernel source branch
+- oplus-vendor: oplus vendor source branch
+
 # Quick Start
 ### Device Enviroment
 at least 2g memory free and 8g free disk space.
