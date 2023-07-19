@@ -38,7 +38,7 @@ jobs:
         
           cd $HOME
 
-          mkdir -p -v clang && aria2c https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12-release/clang-r383902.tar.gz && tar -C clang/ -zxvf clang-*.tar.gz
+          git clone https://github.com/dpkg123/clang --depth=5
 
       - name: Pull kernel source
 
