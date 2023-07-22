@@ -20,7 +20,7 @@ jobs:
 
           sudo apt-get update
 
-          sudo apt-get install libncurses5-dev libncurses-dev libssl-dev device-tree-compiler bc cpio lib32ncurses5-dev lib32z1 build-essential binutils bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev git aria2 -y
+          sudo apt-get install ccache libncurses5-dev libncurses-dev libssl-dev device-tree-compiler bc cpio lib32ncurses5-dev lib32z1 build-essential binutils bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev git aria2 -y
 
       - name: Pull toolchain
 
@@ -73,6 +73,12 @@ jobs:
           cd /home/runner/work/android_kernel_OPPO_PEQM00/android_kernel_OPPO_PEQM00/kernel-4.19
 
           bash setup.sh
+      - name: Setup ccache
+
+        uses: hendrikmuhs/ccache-action@main
+
+        with: 
+          max-size: 8G
 
       - name: Build KernelSU kernel - OPPO Reno 6 Pro
 
