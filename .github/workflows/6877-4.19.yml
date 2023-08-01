@@ -85,7 +85,7 @@ jobs:
               unzip clang.zip -d clang-aosp/
           fi
 
-      - name: Download Gcc-aosp
+      - name: Download Gcc-LineageOS
         run: |
           cd $GITHUB_WORKSPACE/kernel_workspace
           if [ ${{ env.ENABLE_GCC_ARM64 }} = true ]; then
@@ -111,66 +111,149 @@ jobs:
           cd $GITHUB_WORKSPACE/kernel_workspace
           git clone https://android.googlesource.com/platform/system/tools/mkbootimg tools -b master-kernel-build-2022 --depth=1
 
- 
- 
- 
- 
-      - name: Pull toolchain
+      - name: Download kernel source
         run: |
-          cd $HOME
-          git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 aarch64-linux-android-4.9
-          git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 arm-linux-androideabi-4.9
-      - name: Pull clang
-        run: |
-          cd $HOME
-          git clone https://github.com/dpkg123/clang --depth=2
-      
-      - name: Pull kernel source
-        run: |
-          aria2c https://github.com/dabao1955/android_kernel_OPPO_PEQM00/archive/refs/heads/4.19.zip
-          unzip android_kernel_OPPO_PEQM00-4.19.zip
-          mv android_kernel_OPPO_PEQM00-4.19 kernel-4.19 -v
+          cd $GITHUB_WORKSPACE/kernel_workspace
+          git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel --depth=1
       
       - name: Pull kernel vendor source
         run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace
           git clone https://github.com/oppo-source/android_kernel_modules_oppo_mtk_4.19/
           cp android_kernel_modules_oppo_mtk_4.19/vendor ./ -R
           mkdir -p -v ../vnd
           cp android_kernel_modules_oppo_mtk_4.19/vendor ../vnd -R
-          cp android_kernel_modules_oppo_mtk_4.19/vendor/oplus/kernel_4.19/audio/ kernel-4.19/sound/soc/codecs -R -v
+          cp android_kernel_modules_oppo_mtk_4.19/vendor/oplus/kernel_4.19/audio/ ./android-kernel/sound/soc/codecs -R -v
       
       - name: Sync KernelSU
         run: |
-          export KBUILD_BUILD_USER="dabao1955"
-
-          cd /home/runner/work/android_kernel_OPPO_PEQM00/android_kernel_OPPO_PEQM00/kernel-4.19
-
+          export KBUILD_BUILD_USER=${{ github.actor }}
+          cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
           bash setup.sh
-      - name: Setup ccache
-
-        uses: hendrikmuhs/ccache-action@main
-
-        with: 
-
-         max-size: 8G
-
-      - name: Build KernelSU kernel - OPPO Reno 6
-
+        
+      - name: Download source boot image
+        if: env.BUILD_BOOT_IMG == 'true'
         run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace
+          wget -O boot-source.img ${{ env.SOURCE_BOOT_IMAGE }}
+          if [ -f boot-source.img ]; then
+              echo "FORMAT_MKBOOTING=$(echo `tools/unpack_bootimg.py --boot_img=boot-source.img --format mkbootimg`)" >> $GITHUB_ENV
+              echo "HAVE_SOURCE_BOOT_IMAGE=true" >> $GITHUB_ENV
+          fi
 
-          cd /home/runner/work/android_kernel_OPPO_PEQM00/android_kernel_OPPO_PEQM00/kernel-4.19
+      - name: Setup KernelSU
+        if: env.ENABLE_KERNELSU == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s ${{ env.KERNELSU_TAG }}
+          echo "UPLOADNAME=-KernelSU" >> $GITHUB_ENV
+
+      - name: Setup Configuration for Kernel
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+          if [ ${{ env.ADD_KPROBES_CONFIG }} = true ]; then
+              echo "CONFIG_MODULES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+              echo "CONFIG_KPROBES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+              echo "CONFIG_HAVE_KPROBES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+              echo "CONFIG_KPROBE_EVENTS=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+          fi
+          if [ ${{ env.ADD_OVERLAYFS_CONFIG }} = true ]; then
+              echo "CONFIG_OVERLAY_FS=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+          fi
+          if [ ${{ env.DISABLE-LTO }} = true ]; then
+              sed -i 's/CONFIG_LTO=y/CONFIG_LTO=n/' arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+              sed -i 's/CONFIG_LTO_CLANG=y/CONFIG_LTO_CLANG=n/' arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+              sed -i 's/CONFIG_THINLTO=y/CONFIG_THINLTO=n/' arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+              echo "CONFIG_LTO_NONE=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+          fi
+          if [ ${{ env.DISABLE_CC_WERROR }} = true ]; then
+              echo "CONFIG_CC_WERROR=n" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+          fi
+      
+      - name: Setup ccache
+        if: env.ENABLE_CCACHE == 'true'
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: build-kernel-${{ env.DEVICE }}${{ env.UPLOADNAME }}
+          max-size: 8G
           
-          test -f build_kernel.sh && rm build_kernel.sh && wget https://raw.githubusercontent.com/dabao1955/android_kernel_OPPO_PEQM00/README/build_kernel.sh
-
+      - name: Build KernelSU kernel - OPPO Reno 6
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
           bash build_kernel.sh
 
-      - name: Upload kernel to artifact
+      - name: Check a kernel output files
+        run: |
+         cd $GITHUB_WORKSPACE/kernel_workspace
+         if [ -f android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} ]; then
+             echo "CHECK_FILE_IS_OK=true" >> $GITHUB_ENV
+         else
+             echo "Kernel output file is empty"
+             exit 1
+         fi
+         if [ ${{ env.NEED_DTBO }} = true ]; then
+             if [ -f android-kernel/out/arch/${{ env.ARCH }}/boot/dtbo.img ]; then
+                 echo "CHECK_DTBO_IS_OK=true" >> $GITHUB_ENV
+             else
+                 echo "DTBO image is empty"
+                 exit 1
+             fi
+         fi
+  
+      - name: Make Anykernel3
+        if: env.CHECK_FILE_IS_OK == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace
+          git clone https://github.com/osm0sis/AnyKernel3
+          sed -i 's/do.devicecheck=1/do.devicecheck=0/g' AnyKernel3/anykernel.sh
+          sed -i 's!block=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;!block=auto;!g' AnyKernel3/anykernel.sh
+          sed -i 's/is_slot_device=0;/is_slot_device=auto;/g' AnyKernel3/anykernel.sh
+          cp android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} AnyKernel3/
+          if [ ${{ env.CHECK_DTBO_IS_OK }} = true ]; then
+              cp android-kernel/out/arch/${{ env.ARCH }}/boot/dtbo.img AnyKernel3/
+          fi
+          rm -rf AnyKernel3/.git* AnyKernel3/README.md
 
+      - name: Make boot image
+        if: env.HAVE_SOURCE_BOOT_IMAGE == 'true' && env.CHECK_FILE_IS_OK == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace
+          tools/unpack_bootimg.py --boot_img boot-source.img
+          cp android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} out/kernel
+          tools/mkbootimg.py ${{ env.FORMAT_MKBOOTING }} -o boot.img
+          if [ -f boot.img ]; then
+              echo "MAKE_BOOT_IMAGE_IS_OK=true" >> $GITHUB_ENV
+          else
+              echo "Boot image is empty"
+              exit 1
+          fi
+
+
+      - name: Upload ${{ env.KERNEL_IMAGE_NAME }}
+        if: env.CHECK_FILE_IS_OK == 'true'
         uses: actions/upload-artifact@v3
-
         with:
+          name: ${{ env.KERNEL_IMAGE_NAME }}${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
+          path: kernel_workspace/android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }}
 
-          name: kernel
+      - name: Upload AnyKernel3
+        if: env.CHECK_FILE_IS_OK == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: AnyKernel3${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
+          path: kernel_workspace/AnyKernel3/*
 
-          path: kernel-4.19/out/arch/arm64/boot/*
+      - name: Upload DTBO image
+        if: env.CHECK_DTBO_IS_OK == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: dtbo-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
+          path: kernel_workspace/android-kernel/out/arch/${{ env.ARCH }}/boot/dtbo.img
+
+      - name: Upload boot image
+        if: env.MAKE_BOOT_IMAGE_IS_OK == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: boot${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
+          path: kernel_workspace/boot.img
 
