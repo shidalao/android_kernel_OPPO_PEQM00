@@ -209,12 +209,31 @@ jobs:
           echo "env.GCC_32" + ${{ env.GCC_32 }} 
           echo "env.KERNEL_CONFIG" + ${{ env.KERNEL_CONFIG }}
           gcc --version
-          make -j$(nproc) CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.KERNEL_CONFIG }}
-          if [ ${{ env.ENABLE_CCACHE }} = true ]; then
-              make -j$(nproc) CC="ccache clang" O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
-          else
-              make -j$(nproc) CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
-          fi
+          #make -j$(nproc) CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.KERNEL_CONFIG }}
+          #if [ ${{ env.ENABLE_CCACHE }} = true ]; then
+          #    make -j$(nproc) CC="ccache clang" O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
+          #else
+          #    make -j$(nproc) CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
+          #fi
+          
+          BUILD_CROSS_COMPILE==/home/runner/work/android_kernel_OPPO_PEQM00/android_kernel_OPPO_PEQM00/kernel_workspace/gcc-64/bin/aarch64-linux-android-
+          #CLANG_PATH=$HOME/clang/bin
+          CROSS_COMPILE_ARM32=/home/runner/work/android_kernel_OPPO_PEQM00/android_kernel_OPPO_PEQM00/kernel_workspace/gcc-32/bin/arm-linux-androideabi-
+          CLANG_TRIPLE=aarch64-linux-gnu-
+          export ARCH=arm64
+          export PATH=${CLANG_PATH}:${PATH}
+          make -j$(nproc --all) O=out CROSS_COMPILE=$BUILD_CROSS_COMPILE CLANG_TRIPLE=$CLANG_TRIPLE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 \
+              CC=clang \
+              vendor/full/r6p_nodtb_defconfig
+          A=$(date +%s)
+          make -j$(nproc --all) O=out CROSS_COMPILE=$BUILD_CROSS_COMPILE CLANG_TRIPLE=$CLANG_TRIPLE CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32 \
+              CC=clang \
+              -Werror \
+              2>&1 | tee build.txt
+          B=$(date +%s)
+          C=$(expr $B - $A)
+          #echo $(expr $C / 60)
+          echo "kernel finish" $(expr $C / 60)"min"$(expr $C % 60)"s"
 
       - name: Check a kernel output files
         run: |
