@@ -208,7 +208,7 @@ jobs:
           echo "env.GCC_64" + ${{ env.GCC_64 }} 
           echo "env.GCC_32" + ${{ env.GCC_32 }} 
           echo "env.KERNEL_CONFIG" + ${{ env.KERNEL_CONFIG }}
-          
+          gcc --version
           make -j$(nproc) CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.KERNEL_CONFIG }}
           if [ ${{ env.ENABLE_CCACHE }} = true ]; then
               make -j$(nproc) CC="ccache clang" O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
