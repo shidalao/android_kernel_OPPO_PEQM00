@@ -13,6 +13,8 @@ jobs:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
+      CC: gcc-9
+      CXX: g++-9
     steps:
       - uses: actions/checkout@v3     
       - name: Prepare Configuration
