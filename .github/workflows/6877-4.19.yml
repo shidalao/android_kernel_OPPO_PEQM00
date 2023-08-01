@@ -181,17 +181,18 @@ jobs:
           
       - name: Pack kernel source
         run: |
-          cd $GITHUB_WORKSPACE/kernel_workspace
-          echo "print kernel_workspace"
-          ls -l
-          echo "ls cmd is done."
-          tar -zcvf source.tar.gz ./android-kernel
+            echo "remove packing source"
+      #    cd $GITHUB_WORKSPACE/kernel_workspace
+      #    echo "print kernel_workspace"
+      #    ls -l
+      #   echo "ls cmd is done."
+      #    tar -zcvf source.tar.gz ./android-kernel
       
-      - name: Upload android-kernel source
-        uses: actions/upload-artifact@v3
-        with:
-          name: source.tar.gz
-          path: kernel_workspace/source.tar.gz
+      #- name: Upload android-kernel source
+      #  uses: actions/upload-artifact@v3
+      # with:
+      #    name: source.tar.gz
+      #    path: kernel_workspace/source.tar.gz
           
       - name: Build KernelSU kernel - OPPO Reno 6
         run: |
