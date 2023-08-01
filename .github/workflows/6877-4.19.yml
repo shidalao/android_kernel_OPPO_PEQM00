@@ -14,15 +14,7 @@ jobs:
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup build kernel environment
-        run: |
-          echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV
-          echo "DEVICE=$(echo ${{ env.KERNEL_CONFIG }} | sed 's!vendor/!!;s/_defconfig//;s/_user//;s/-perf//')" >> $GITHUB_ENV
-          sudo apt-get update
-          sudo apt-get install ccache libncurses5-dev libncurses-dev libssl-dev device-tree-compiler bc cpio lib32ncurses5-dev lib32z1 build-essential binutils bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev git aria2 -y
-          mkdir -p $GITHUB_WORKSPACE/kernel_workspace
-      
+      - uses: actions/checkout@v3     
       - name: Prepare Configuration
         run: |
           echo "KERNEL_SOURCE=$(cat config_6877.env | grep -w "KERNEL_SOURCE" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
@@ -52,6 +44,77 @@ jobs:
           echo "KSU_EXPECTED_SIZE=$(cat config_6877.env | grep -w "KSU_EXPECTED_SIZE" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
           echo "KSU_EXPECTED_HASH=$(cat config_6877.env | grep -w "KSU_EXPECTED_HASH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
       
+      - name: Setup build kernel environment
+        run: |
+          echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV
+          echo "DEVICE=$(echo ${{ env.KERNEL_CONFIG }} | sed 's!vendor/!!;s/_defconfig//;s/_user//;s/-perf//')" >> $GITHUB_ENV
+          sudo apt-get update
+          sudo apt-get install ccache libncurses5-dev libncurses-dev libssl-dev device-tree-compiler bc cpio lib32ncurses5-dev lib32z1 build-essential binutils bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev git aria2 -y
+          mkdir -p $GITHUB_WORKSPACE/kernel_workspace
+ 
+      - name: Download Clang-aosp
+        if: env.USE_CUSTOM_CLANG == 'false'
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace
+          mkdir clang-aosp
+          # Check if CLANG_BRANCH starts with "android"
+            if [[ "${CLANG_BRANCH}" == "android"* ]]; then
+              echo "CLANG_BRANCH starts with 'android'."
+              wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/${{ env.CLANG_BRANCH }}/clang-${{ env.CLANG_VERSION }}.tar.gz
+            else
+              echo "CLANG_BRANCH does not start with 'android'."
+              https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/${{ env.CLANG_BRANCH }}/clang-${{ env.CLANG_VERSION }}.tar.gz
+            fi        
+          tar -C clang-aosp/ -zxvf clang-${{ env.CLANG_VERSION }}.tar.gz
+
+      - name: Download Custom-Clang
+        if: env.USE_CUSTOM_CLANG == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace
+          if [[ ${{ env.CUSTOM_CLANG_SOURCE }} =~ git ]]; then
+              if [[ ${{ env.CUSTOM_CLANG_SOURCE }} == *'.tar.gz' ]]; then
+                  wget -O clang.tar.gz ${{ env.CUSTOM_CLANG_SOURCE }}
+                  mkdir clang-aosp
+                  tar -C clang-aosp/ -zxvf clang.tar.gz
+              else
+                  git clone ${{ env.CUSTOM_CLANG_SOURCE }} -b ${{ env.CUSTOM_CLANG_BRANCH }} clang-aosp --depth=1
+              fi        
+          else
+              wget -O clang.zip ${{ env.CUSTOM_CLANG_SOURCE }}
+              mkdir clang-aosp
+              unzip clang.zip -d clang-aosp/
+          fi
+
+      - name: Download Gcc-aosp
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace
+          if [ ${{ env.ENABLE_GCC_ARM64 }} = true ]; then
+              mkdir gcc-64
+              # wget -O gcc-aarch64.tar.gz https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-12.1.0_r27.tar.gz
+              # tar -C gcc-64/ -zxvf gcc-aarch64.tar.gz
+              git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 gcc-64
+              echo "GCC_64=CROSS_COMPILE=$GITHUB_WORKSPACE/kernel_workspace/gcc-64/bin/aarch64-linux-android-" >> $GITHUB_ENV
+          fi
+
+          if [ ${{ env.ENABLE_GCC_ARM32 }} = true ]; then
+              mkdir gcc-32
+              # wget -O gcc-arm.tar.gz https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-12.1.0_r27.tar.gz
+              # tar -C gcc-32/ -zxvf gcc-arm.tar.gz
+              git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 gcc-32
+
+              echo "GCC_32=CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/kernel_workspace/gcc-32/bin/arm-linux-androideabi-" >> $GITHUB_ENV
+          fi
+
+      - name: Download mkbootimg tools
+        if: env.BUILD_BOOT_IMG == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace
+          git clone https://android.googlesource.com/platform/system/tools/mkbootimg tools -b master-kernel-build-2022 --depth=1
+
+ 
+ 
+ 
+ 
       - name: Pull toolchain
         run: |
           cd $HOME
