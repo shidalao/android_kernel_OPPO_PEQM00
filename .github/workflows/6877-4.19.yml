@@ -180,6 +180,9 @@ jobs:
       - name: Pack kernel source
         run: |
           cd $GITHUB_WORKSPACE/kernel_workspace
+          echo "print kernel_workspace"
+          ls -l
+          echo "ls cmd is done."
           tar -zcvf source.tar.gz ./android-kernel
       
       - name: Upload android-kernel source
