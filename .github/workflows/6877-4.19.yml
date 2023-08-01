@@ -177,6 +177,17 @@ jobs:
           key: build-kernel-${{ env.DEVICE }}${{ env.UPLOADNAME }}
           max-size: 8G
           
+      - name: Pack kernel source
+        run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+          tar -zcvf source.tar.gz ./
+      
+      - name: Upload android-kernel source
+        uses: actions/upload-artifact@v3
+        with:
+          name: $GITHUB_WORKSPACE/kernel_workspace/android-kernel/source.tar.gz
+          path: kernel_workspace/android-kernel/source.tar.gz
+          
       - name: Build KernelSU kernel - OPPO Reno 6
         run: |
           cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
