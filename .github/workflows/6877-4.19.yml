@@ -185,7 +185,7 @@ jobs:
       - name: Upload android-kernel source
         uses: actions/upload-artifact@v3
         with:
-          name: $GITHUB_WORKSPACE/kernel_workspace/source.tar.gz
+          name: source.tar.gz
           path: kernel_workspace/source.tar.gz
           
       - name: Build KernelSU kernel - OPPO Reno 6
